@@ -10,6 +10,18 @@ package main.com.huburt.list;
  */
 public class MyLinkedList {
 
+    private static class Node {
+        int value;
+        Node next;
+        Node prev;
+
+        Node(Node prev, int value, Node next) {
+            this.value = value;
+            this.next = next;
+            this.prev = prev;
+        }
+    }
+
     private Node first;
     private Node last;
     private int size = 0;
@@ -40,11 +52,19 @@ public class MyLinkedList {
     }
 
     private Node node(int index) {
-        Node x = first;
-        for (int i = 0; i < index; i++) {
-            x = x.next;
+        if (index < (size >> 1)) {
+            Node x = first;
+            for (int i = 0; i < index; i++) {
+                x = x.next;
+            }
+            return x;
+        } else {
+            Node x = last;
+            for (int i = size - 1; i > index; i--) {
+                x = x.prev;
+            }
+            return x;
         }
-        return x;
     }
 
     /**
@@ -52,13 +72,13 @@ public class MyLinkedList {
      * After the insertion, the new node will be the first node of the linked list.
      */
     public void addAtHead(int val) {
-        Node node = new Node(val);
-        if (size == 0) {
-            first = node;
+        Node f = first;
+        Node node = new Node(null, val, first);
+        first = node;
+        if (f == null) {
             last = node;
         } else {
-            node.next = first;
-            first = node;
+            f.prev = node;
         }
         size++;
     }
@@ -67,13 +87,13 @@ public class MyLinkedList {
      * Append a node of value val to the last element of the linked list.
      */
     public void addAtTail(int val) {
-        Node node = new Node(val);
-        if (size == 0) {
+        Node l = last;
+        Node node = new Node(last, val, null);
+        last = node;
+        if (l == null) {
             first = node;
-            last = node;
         } else {
-            last.next = node;
-            last = node;
+            l.next = node;
         }
         size++;
     }
@@ -85,20 +105,24 @@ public class MyLinkedList {
      */
     public void addAtIndex(int index, int val) {
         if (isPositionIndex(index)) {
-            Node add = new Node(val);
-            if (index == 0) {
-                add.next = first;
-                first = add;
-            } else if (index == size) {
-                last.next = add;
-                last = add;
+            if (index == size) {
+                addAtTail(val);
             } else {
-                Node pre = node(index - 1);
-                add.next = pre.next;
-                pre.next = add;
+                addBefore(val, node(index));
             }
-            size++;
         }
+    }
+
+    private void addBefore(int val, Node n) {
+        Node prev = n.prev;
+        Node newNode = new Node(prev, val, n);
+        n.prev = newNode;
+        if (prev == null) {
+            first = newNode;
+        } else {
+            prev.next = newNode;
+        }
+        size++;
     }
 
     /**
@@ -106,11 +130,20 @@ public class MyLinkedList {
      */
     public void deleteAtIndex(int index) {
         if (isElementIndex(index)) {
-            if (index == 0) {
-                first = first.next;
+            Node node = node(index);
+            Node prev = node.prev;
+            Node next = node.next;
+            if (prev == null) {
+                first = next;
             } else {
-                Node pre = node(index - 1);
-                pre.next = pre.next.next;
+                prev.next = next;
+                node.prev = null;
+            }
+            if (next == null) {
+                last = prev;
+            } else {
+                next.prev = prev;
+                node.next = null;
             }
             size--;
         }
@@ -129,15 +162,6 @@ public class MyLinkedList {
         }
         sb.append("]");
         return sb.toString();
-    }
-
-    private class Node {
-        public int value;
-        public Node next;
-
-        public Node(int value) {
-            this.value = value;
-        }
     }
 }
 
