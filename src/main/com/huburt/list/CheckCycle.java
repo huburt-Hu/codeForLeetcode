@@ -2,16 +2,6 @@ package main.com.huburt.list;
 
 public class CheckCycle {
 
-    static class ListNode {
-        int val;
-        ListNode next;
-
-        ListNode(int x) {
-            val = x;
-            next = null;
-        }
-    }
-
     /**
      * 判断链表中是否有环，快慢指针方法
      * <p>
